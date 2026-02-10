@@ -122,6 +122,17 @@ kubelet 提供了一个 HTTP API，通常暴露在集群工作节点上的 TCP �
 对 API 的直接访问允许公开有关运行在节点上的 Pod、这些 Pod 的日志以及在节点上运行的每个容器中执行命令的信息。
 
 <!--
+Some of these endpoints support Websocket protocols via HTTP `GET` requests, which are authorized with the **get** verb.
+This means that **get** permission on `nodes/proxy` is not a read-only permission,
+and authorizes access to endpoints which can be used to execute commands in any container running on the node.
+-->
+其中一些端点通过 HTTP `GET` 请求支持 WebSocket 协议，
+并且是通过 **get** 动词进行授权的。这意味着针对 `nodes/proxy` 的
+**get** 权限并不是只读权限，它实际上授权访问一些端点，
+而这些端点可被用来在该节点上运行的任意容器中执行命令。
+
+
+<!--
 When Kubernetes cluster users have RBAC access to `Node` object sub-resources, that access
 serves as authorization to interact with the kubelet API. The exact access depends on
 which sub-resource access has been granted, as detailed in
@@ -159,6 +170,8 @@ kubelet API 可以配置为以多种方式验证请求。
 - Restrict access to sub-resources of the `nodes` API object using mechanisms such as
   [RBAC](/docs/reference/access-authn-authz/rbac/). Only grant this access when required,
   such as by monitoring services.
+- Avoid granting the `nodes/proxy` catch-all permission, even with just the **get** verb.
+  Instead, grant [granular permissions](/docs/reference/access-authn-authz/kubelet-authn-authz/#fine-grained-authorization).
 - Restrict access to the kubelet port. Only allow specified and trusted IP address
   ranges to access the port.
 - Ensure that [kubelet authentication](/docs/reference/access-authn-authz/kubelet-authn-authz/#kubelet-authentication).
@@ -167,6 +180,8 @@ kubelet API 可以配置为以多种方式验证请求。
  -->
 - 使用 [RBAC](/zh-cn/docs/reference/access-authn-authz/rbac/) 等机制限制对 `nodes` API 对象的子资源的访问。
   只在有需要时才授予此访问权限，例如监控服务。
+- 即使仅限于 **get** 动词，对 `nodes/proxy` 也要避免授予一揽子的权限。相反，应授予
+  [细粒度的权限](/zh-cn/docs/reference/access-authn-authz/kubelet-authn-authz/#kubelet-authentication)。
 - 限制对 kubelet 端口的访问。只允许指定和受信任的 IP 地址段访问该端口。
 - 确保将
   [kubelet 身份验证](/zh-cn/docs/reference/access-authn-authz/kubelet-authn-authz/#kubelet-authentication)

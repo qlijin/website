@@ -130,6 +130,31 @@ then you can implement or install an extension that does provide that feature.
 （比如针对某种高吞吐量的分布式任务），你可以基于定制资源实现一个能够满足这一需求的扩展，
 并将其安装到集群中运行。
 
+<!--
+## Workload placement
+-->
+## 工作负载调度   {#workload-placement}
+
+{{< feature-state feature_gate_name="GenericWorkload" >}}
+
+<!--
+While standard workload resources (like Deployments and Jobs) manage the lifecycle of Pods,
+you may have complex scheduling requirements where groups of Pods must be treated as a single unit.
+
+The [Workload API](/docs/concepts/workloads/workload-api/) allows you to define a group of Pods
+and apply advanced scheduling policies to them, such as [gang scheduling](/docs/concepts/scheduling-eviction/gang-scheduling/).
+This is particularly useful for batch processing and machine learning workloads
+where "all-or-nothing" placement is required.
+-->
+虽然标准的工作负载资源（如 Deployment 和 Job）可以管理 Pod 的生命周期，
+但你可能面临复杂的调度需求，即需要将一组 Pod 作为一个整体来进行处理。
+
+[工作负载 API](/zh-cn/docs/concepts/workloads/workload-api/) 
+允许你定义一组 Pod，并为其应用高级调度策略，例如
+[编组调度](/zh-cn/docs/concepts/scheduling-eviction/gang-scheduling/)。
+这在批处理和机器学习工作负载中尤为有用，
+因为这类场景通常需要“全有或全无（all-or-nothing）”的整体调度策略。
+
 ## {{% heading "whatsnext" %}}
 
 <!--
