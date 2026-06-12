@@ -70,6 +70,21 @@ profiles:
     name: NodeResourcesFit
 ```
 
+<!--                                                            
+With this configuration, nodes are scored using a weighted average of utilization across all 
+four resources. Because `intel.com/foo` and `intel.com/bar` each carry a weight of `3` versus 
+`1` for CPU and memory, the utilization of those extended resources has three times more
+influence on the final node score. The scheduler selects the highest-scoring node, aiming to
+schedule pods on highly utilized nodes. This helps prepare for scale-down of the least utilized
+nodes.
+-->
+在该配置下，节点评分基于全部四种资源的利用率加权平均值计算。
+`intel.com/foo` 与 `intel.com/bar` 的权重均为 `3`，
+而 CPU 和内存的权重为 `1`，
+因此那些扩展资源的利用率对最终评分的影响力是 CPU 和内存的三倍。
+调度器会选择得分最高的节点，倾向于将 Pod 调度到高利用率节点上，
+从而为后续缩容低利用率节点创造条件。
+
 <!--
 To learn more about other parameters and their default configuration, see the API documentation for
 [`NodeResourcesFitArgs`](/docs/reference/config-api/kube-scheduler-config.v1/#kubescheduler-config-k8s-io-v1-NodeResourcesFitArgs).
@@ -137,6 +152,32 @@ profiles:
         type: RequestedToCapacityRatio
     name: NodeResourcesFit
 ```
+
+<!--
+In this example, only the extended resources `intel.com/foo` and `intel.com/bar` are listed 
+in `resources`. The `NodeResourcesFit` plugin therefore scores nodes based solely on the
+utilization of those two resources; CPU and memory do not contribute to the score from this
+plugin. Because the configured shape assigns a higher score as utilization increases
+(`score: 0` at `utilization: 0` rising to `score: 10` at `utilization: 100`), the scheduler
+prefers nodes where more of these extended resources are already in use, bin-packing requests 
+for them onto as few nodes as possible.
+-->
+本例中，`resources` 仅包含 `intel.com/foo` 和 `intel.com/bar` 两项扩展资源。
+因此 `NodeResourcesFit` 插件仅根据这两种资源的利用率对节点打分，
+CPU 和内存不参与该插件的评分过程。
+由于配置的 `shape` 会随着利用率的提高而赋予更高的分数 
+（`score: 0` 对应 `utilization: 0`，`score: 10` 对应 `utilization: 100`），
+调度器会优先选择扩展资源已被更多占用的节点，
+从而将资源请求尽可能装箱到更少的节点上。
+
+<!--
+To include CPU and memory in this scoring strategy, add them to the `resources` list. Note
+that all resources in the list share the same `shape` function, so doing so will apply the same
+bin-packing curve to those resources as well. 
+-->
+若要将 CPU 和内存纳入该评分策略，将其添加到 `resources` 列表即可。
+需要注意的是，列表中所有资源共用同一个 `shape` 函数，
+因此这样做也会将相同的装箱曲线应用于这些资源。
 
 <!--
 Referencing the `KubeSchedulerConfiguration` file with the kube-scheduler
